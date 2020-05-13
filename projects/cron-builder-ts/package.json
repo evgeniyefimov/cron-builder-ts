@@ -5,7 +5,7 @@
   "name": "cron-builder-ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/evgeniyefimov/cron-builder-ts/settings"
+    "url": "https://github.com/evgeniyefimov/cron-builder-ts"
   },
   "version": "1.0.0"
 }
