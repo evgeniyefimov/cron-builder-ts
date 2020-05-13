@@ -1,4 +1,4 @@
-This is a fork of https://github.com/sourceclear/cron-builder
+### Forked from https://github.com/sourceclear/cron-builder
 
 # cron-builder
 The software utility *cron* is a time-based scheduler in Unix-like computer operating systems. A user may use cron to schedule jobs (commands or scripts) to run periodically at fixed times, dates, or intervals. A cron statement is composed of 5 fields separated by white space. The `*` character translates to "every", ie: "every minute" or "every day of the week".
@@ -8,16 +8,12 @@ cron-builder will manage the state of a cron expression, allowing a user to mani
 ### Install
 cron-builder is available on npm and bower:
 ```
-npm install cron-builder --save
-```
-or
-```
-bower install cron-builder --save
+npm i cron-builder-ts --save
 ```
 
 After installing, just require the package as you normally would:
 ```
-var cb = require('/path/to/cron-builder.js');
+import { CronBuilder } from 'cron-builder-ts';
 ```
 
 
@@ -27,10 +23,10 @@ To instantiate the cron builder:
 
 ```JavaScript
 // (default expression is set to "* * * * *")
-var cronExp = new cb();
+var cronExp = new CronBuilder();
 
 // optionally, pass in a cron expression to override the default:
-var myCronExp = new cb('5 12 * * 1-5')
+var myCronExp = new CronBuilder('5 12 * * 1-5')
 ```
 
 To return the cron expression at any given time:
