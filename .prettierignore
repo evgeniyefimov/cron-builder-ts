@@ -1,0 +1,11 @@
+# Add files here to ignore them from prettier formatting
+/*
+!/apps
+!/libs
+/apps/mobile-app/platforms
+/apps/mobile-app/plugins
+/apps/mobile-app/www/assets/i18n/*.ts
+/libs/api/api.ts
+/libs/config/src/lib/local.config.*
+/libs/errors/src/client-errors-generated.ts
+/libs/terms-app/src/assets/terms/*
