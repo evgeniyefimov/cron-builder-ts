@@ -50,7 +50,9 @@
     "no-require-imports": true,
     "no-restricted-globals": true,
     "no-submodule-imports": [
-      true
+      true,
+      "@angular",
+      "zone.js"
     ],
     "no-tautology-expression": true,
     "no-this-assignment": true,

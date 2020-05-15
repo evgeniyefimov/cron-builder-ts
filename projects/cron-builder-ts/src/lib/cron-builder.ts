@@ -11,9 +11,6 @@ export class CronBuilder {
   private expression: Expression;
 
   constructor(initialExpression?: string) {
-    // var splitExpression;
-    // var expression;
-
     if (initialExpression) {
       CronValidator.validateString(initialExpression);
 
@@ -21,11 +18,11 @@ export class CronBuilder {
       // check to see if initial expression is valid
 
       this.expression = {
-        minute: splitExpression[0] ? [splitExpression[0]] : DEFAULT_INTERVAL,
-        hour: splitExpression[1] ? [splitExpression[1]] : DEFAULT_INTERVAL,
-        dayOfTheMonth: splitExpression[2] ? [splitExpression[2]] : DEFAULT_INTERVAL,
-        month: splitExpression[3] ? [splitExpression[3]] : DEFAULT_INTERVAL,
-        dayOfTheWeek: splitExpression[4] ? [splitExpression[4]] : DEFAULT_INTERVAL,
+        minute: splitExpression[0] ? splitExpression[0].split(",") : DEFAULT_INTERVAL,
+        hour: splitExpression[1] ? splitExpression[1].split(",") : DEFAULT_INTERVAL,
+        dayOfTheMonth: splitExpression[2] ? splitExpression[2].split(",") : DEFAULT_INTERVAL,
+        month: splitExpression[3] ? splitExpression[3].split(",") : DEFAULT_INTERVAL,
+        dayOfTheWeek: splitExpression[4] ? splitExpression[4].split(",") : DEFAULT_INTERVAL,
       };
     } else {
       this.expression = {

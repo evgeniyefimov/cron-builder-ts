@@ -10,6 +10,12 @@ describe('cron-builder', () => {
     expect(cron.get('dayOfTheWeek')).toEqual('*');
   });
 
+  it('should split multiple cron values when initialized with arguments', () => {
+    const cron = new CronBuilder("0,15,30,45 * * * *");
+    const { minute } = cron.getAll();
+    expect(minute).toEqual(["0", "15", "30", "45"]);
+  });
+
   it('returns a working cron expression when calling .build()', () => {
     const cron = new CronBuilder();
     expect(cron.build()).toEqual('* * * * *');
