@@ -1,5 +1,8 @@
 {
   "author": "Evgeniy Efimov. Origianl author is Tyler Waneka <twwaneka@gmail.com> (http://tylerwaneka.com)",
+  "dependencies": {
+    "cron-converter": "1.0.0"
+  },
   "description": "simple API for building cron expressions",
   "license": "MIT",
   "name": "cron-builder-ts",
@@ -7,5 +10,5 @@
     "type": "git",
     "url": "https://github.com/evgeniyefimov/cron-builder-ts"
   },
-  "version": "1.0.3"
+  "version": "1.0.4"
 }
