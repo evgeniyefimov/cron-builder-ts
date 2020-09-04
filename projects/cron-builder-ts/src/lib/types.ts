@@ -14,6 +14,14 @@ export interface Expression {
   [DAY_OF_THE_WEEK]: string[];
 }
 
+export interface ExpandedExpression {
+  [MINUTE]: number[];
+  [HOUR]: number[];
+  [DAY_OF_THE_MONTH]: number[];
+  [MONTH]: number[];
+  [DAY_OF_THE_WEEK]: number[];
+}
+
 export const DEFAULT_INTERVAL = ['*'];
 
 /**

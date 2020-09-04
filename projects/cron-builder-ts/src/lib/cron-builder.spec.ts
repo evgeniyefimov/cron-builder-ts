@@ -16,6 +16,23 @@ describe('cron-builder', () => {
     expect(minute).toEqual(["0", "15", "30", "45"]);
   });
 
+  it('should split multiple cron values when initialized with arguments (expanded)', () => {
+    const cron = new CronBuilder("0,15,30,45 * * * *");
+    const {
+      dayOfTheMonth,
+      dayOfTheWeek,
+      hour,
+      minute,
+      month,
+    } = cron.getAll({ expand: true });
+
+    expect(minute).toEqual([0, 15, 30, 45]);
+    expect(hour).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]);
+    expect(dayOfTheMonth).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]);
+    expect(month).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    expect(dayOfTheWeek).toEqual([0, 1, 2, 3, 4, 5, 6]);
+  });
+
   it('returns a working cron expression when calling .build()', () => {
     const cron = new CronBuilder();
     expect(cron.build()).toEqual('* * * * *');
@@ -30,12 +47,14 @@ describe('cron-builder', () => {
   it('sets multiple values at once', () => {
     const cron = new CronBuilder();
     expect(cron.set('minute', ['0', '10', '20', '30', '40', '50'])).toEqual('0,10,20,30,40,50');
+    expect(cron.build({ plain: false })).toEqual('*/10 * * * *');
     expect(cron.build()).toEqual('0,10,20,30,40,50 * * * *');
   });
 
   it('sets a range', () => {
     const cron = new CronBuilder();
     expect(cron.set('dayOfTheWeek', ['5-7'])).toEqual('5-7');
+    expect(cron.build({ plain: false })).toEqual('* * * * 0,5-6');
     expect(cron.build()).toEqual('* * * * 5-7');
   });
 
@@ -45,6 +64,7 @@ describe('cron-builder', () => {
     cron.set('hour', ['6', '18']);
     cron.set('dayOfTheMonth', ['1', '15']);
     cron.set('dayOfTheWeek', ['1-5']);
+    expect(cron.build({ plain: false })).toEqual('10-50/20 6,18 1,15 * 1-5');
     expect(cron.build()).toEqual('10,30,50 6,18 1,15 * 1-5');
   });
 
@@ -95,6 +115,7 @@ describe('cron-builder', () => {
     getAllResponse.month = ['1-6'];
     getAllResponse.dayOfTheWeek = ['1,3,5,7'];
     cron.setAll(getAllResponse);
+    expect(cron.build({ plain: false })).toEqual('* 13 * 1-6 0-1,3,5');
     expect(cron.build()).toEqual('* 13 * 1-6 1,3,5,7');
   });
 

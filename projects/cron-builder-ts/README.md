@@ -33,7 +33,11 @@ To return the cron expression at any given time:
 ```JavaScript
 cronExp.build();
 // '* * * * *'
+
+// add optional flags to customize build result
+cronExp.build(options);
 ```
+
 
 API includes basic getters and setters:
 ```JavaScript
@@ -68,6 +72,24 @@ exp.dayOfTheMonth = ['7','14','21','28'];
 cronExp.setAll(exp);
 cronExp.build();
 // '35 2 7,14,21,28 4,10 *'
+```
+
+### Build options
+
+#### outputWeekdayNames and outputMonthNames
+Default: false
+```js
+const myCronExp = new CronBuilder('*/5 9-17/2 * 1-3 1-5')
+cronExp.build({ outputWeekdayNames: true, outputMonthNames: true });
+// Result: '*/5 *(10-16)/2 * JAN-MAR MON-FRI'
+```
+
+#### outputHashes
+Default: false
+```js
+const myCronExp = new CronBuilder('*/5 9-17/2 * 1-3 1-5')
+cronExp.build({ outputHashes: true });
+// Result: 'H/5 H(10-16)/2 H 1-3 1-5'
 ```
 
 ##### Notes:

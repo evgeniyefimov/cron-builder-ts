@@ -1,5 +1,8 @@
+import * as Cron from "cron-converter";
+
 import { CronValidator } from './cron-validator';
-import { DEFAULT_INTERVAL, Expression, MEASURE_OF_TIME_MAP } from './types';
+import { DEFAULT_INTERVAL, ExpandedExpression, Expression, MEASURE_OF_TIME_MAP } from './types';
+import { keys } from './utils';
 
 /**
  * Initializes a CronBuilder with an optional initial cron expression.
@@ -8,14 +11,13 @@ import { DEFAULT_INTERVAL, Expression, MEASURE_OF_TIME_MAP } from './types';
  * @constructor
  */
 export class CronBuilder {
-  private expression: Expression;
+  private readonly expression: Expression;
 
-  constructor(initialExpression?: string) {
+  constructor(initialExpression: string = "* * * * *") {
     if (initialExpression) {
       CronValidator.validateString(initialExpression);
 
       const splitExpression = initialExpression.split(' ');
-      // check to see if initial expression is valid
 
       this.expression = {
         minute: splitExpression[0] ? splitExpression[0].split(",") : DEFAULT_INTERVAL,
@@ -37,16 +39,38 @@ export class CronBuilder {
 
   /**
    * builds a working cron expression based on the state of the cron object
+   * @param {!Object} [options] - customize how to build cron string
+   * @param {!Boolean} [options.plain=true] - get cron string as it is, otherwise build short cron string.
+   * if false: * 13 * 1-6 0,1,2,3,5,6 ---> * 13 * 1-6 0-3,5-6
+   * @param {!Boolean} [options.outputWeekdayNames=false] - changes the numbers to 3 letter weekday names.
+   * if true: *\/5 9-17/2 * 1-3 1-5 ---> *\/5 *(10-16)/2 * JAN-MAR MON-FRI
+   * @param {!Boolean} [options.outputMonthNames=false] - changes the numbers to 3 letter month names.
+   * if true: *\/5 9-17/2 * 1-3 1-5 ---> *\/5 *(10-16)/2 * JAN-MAR MON-FRI
+   * @param {!Boolean} [options.outputHashes=false] - changes the * to H.
+   * if true: *\/5 9-17/2 * 1-3 1-5 ---> H/5 H(10-16)/2 H 1-3 1-5
    * @returns {string} - working cron expression
    */
-  public build(): string {
-    return [
+  public build(options?: { plain: boolean | undefined } & Omit<Cron.Options, "timezone">): string {
+    const {
+      plain,
+    } = options ?? { plain: true };
+
+    const cronString = [
       this.expression.minute.join(','),
       this.expression.hour.join(','),
       this.expression.dayOfTheMonth.join(','),
       this.expression.month.join(','),
       this.expression.dayOfTheWeek.join(','),
     ].join(' ');
+
+    if (plain) {
+      return cronString;
+    }
+
+    const cronInstance = new Cron(options);
+    cronInstance.fromString(cronString);
+
+    return cronInstance.toString();
   }
 
 
@@ -97,17 +121,46 @@ export class CronBuilder {
   /**
    * returns the current state of a given measureOfTime
    * @param {!String} measureOfTime one of "minute", "hour", etc
+   * @returns {!Array.number} comma separated blah blah
+   * @throws {Error} if the measureOfTime is not one of the permitted values.
+   */
+  public get(measureOfTime: keyof Expression, options: { expand: true }): number[]
+  /**
+   * returns the current state of a given measureOfTime
+   * @param {!String} measureOfTime one of "minute", "hour", etc
    * @returns {!String} comma separated blah blah
    * @throws {Error} if the measureOfTime is not one of the permitted values.
    */
-  public get(measureOfTime: keyof Expression): string {
+  public get(measureOfTime: keyof Expression, options?: { expand: false }): string
+  public get(measureOfTime: keyof Expression, options?: { expand: boolean }): string | number[] {
     if (!this.expression[measureOfTime]) {
       throw new Error(`Invalid measureOfTime: Valid options are: ${MEASURE_OF_TIME_MAP.join(', ')}`);
     }
 
-    return this.expression[measureOfTime].join(',');
+    const {
+      expand,
+    } = options ?? { expand: false };
+
+    if (!expand) {
+      return this.expression[measureOfTime].join(',');
+    }
+
+    const expression = this.getAll({ expand });
+
+    return expression[measureOfTime];
   }
 
+  /**
+   * Returns a rich object that describes the current state of the cron expression.
+   * @returns {!{
+   *  minute: Array.number,
+   *  hour: Array.number,
+   *  dayOfTheMonth: Array.number,
+   *  month: Array.number,
+   *  dayOfTheWeek: Array.number,
+   * }}
+   */
+  public getAll(options: { expand: true }): ExpandedExpression
   /**
    * Returns a rich object that describes the current state of the cron expression.
    * @returns {!{
@@ -118,8 +171,28 @@ export class CronBuilder {
    *  dayOfTheWeek: Array.string,
    * }}
    */
-  public getAll(): Expression {
-    return this.expression;
+  public getAll(options?: { expand: false }): Expression
+  public getAll(options?: { expand: boolean }): Expression | ExpandedExpression {
+    const {
+      expand,
+    } = options ?? { expand: false };
+
+    if (!expand) {
+      return this.expression;
+    }
+
+    const cronString = this.build({ plain: true });
+    const cronInstance = new Cron();
+    cronInstance.fromString(cronString);
+    const cronArray = cronInstance.toArray();
+
+    return {
+      minute: cronArray[0],
+      hour: cronArray[1],
+      dayOfTheMonth: cronArray[2],
+      month: cronArray[3],
+      dayOfTheWeek: cronArray[4],
+    }
   }
 
   /**
@@ -158,6 +231,6 @@ export class CronBuilder {
   public setAll(expToSet: Expression): void {
     CronValidator.validateExpression(expToSet);
 
-    this.expression = expToSet;
+    keys(this.expression).forEach((key) => this.expression[key] = expToSet[key])
   }
 }
